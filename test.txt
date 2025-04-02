@@ -1,0 +1,41 @@
+server.tool(
+  "get-latest-token-price",
+  "Retrieve the latest token prices from the notification server. This tool fetches and returns the current prices of various tokens as maintained by the system.",
+  {}, // No input parameters required
+  async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3001/api/latestTokenPrice",
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch latest token prices");
+      }
+      const data = await response.json();
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Latest Token Prices:\n\n${JSON.stringify(
+              data.latestTokenPrices,
+              null,
+              2
+            )}`,
+          },
+        ],
+      };
+    } catch (error: any) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error retrieving latest token prices: ${error}`,
+          },
+        ],
+      };
+    }
+  }
+);
