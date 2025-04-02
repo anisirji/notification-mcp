@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import express, { Request, Response } from "express";
-import { createServer } from "http";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 
 const NWS_API_BASE = "https://api.weather.gov";
 const USER_AGENT = "weather-app/1.0";
@@ -389,19 +387,12 @@ server.tool(
 );
 
 async function main() {
-  const app = express();
-  const httpServer = createServer(app);
-  app.get("/", async (req: Request, res: Response) => {
-    const transport = new SSEServerTransport(req as any, res as any); // Cast req and res to any to satisfy type requirements
-    await server.connect(transport);
-  });
-
-  httpServer.listen(3000, () => {
-    console.error("🌐 MCP SSE Server running at http://localhost:3000");
-  });
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error("Weather MCP Server running on stdio");
 }
 
-main().catch((err) => {
-  console.error("❌ Failed to start server:", err);
+main().catch((error) => {
+  console.error("Fatal error in main():", error);
   process.exit(1);
 });
